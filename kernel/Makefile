@@ -63,7 +63,11 @@ $(info -- Did you know you can backport path_umount to fs/namespace.c from 5.9?)
 $(info -- Read: https://kernelsu.org/guide/how-to-integrate-for-non-gki.html#how-to-backport-path-umount)
 endif
 
-ccflags-y += -Wno-implicit-function-declaration -Wno-strict-prototypes -Wno-int-conversion -Wno-gcc-compat
-ccflags-y += -Wno-declaration-after-statement -Wno-unused-function
+ccflags-y += $(call cc-disable-warning,implicit-function-declaration)
+ccflags-y += $(call cc-disable-warning,strict-prototypes)
+ccflags-y += $(call cc-disable-warning,int-conversion)
+ccflags-y += $(call cc-disable-warning,gcc-compat)
+ccflags-y += $(call cc-disable-warning,declaration-after-statement)
+ccflags-y += $(call cc-disable-warning,unused-function)
 
 # Keep a new line here!! Because someone may append config

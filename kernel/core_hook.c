@@ -212,7 +212,9 @@ int ksu_handle_prctl(int option, unsigned long arg2, unsigned long arg3,
 		     unsigned long arg4, unsigned long arg5)
 {
 	// if success, we modify the arg5 as result!
-	u32 *result = (u32 *)arg5;
+	u32 __user *result = (u32 __user *)arg5;
+	void __user *arg3_user = (void __user *)arg3;
+	void __user *arg4_user = (void __user *)arg4;
 	u32 reply_ok = KERNEL_SU_OPTION;
 
 	if (KERNEL_SU_OPTION != option) {
@@ -263,7 +265,7 @@ int ksu_handle_prctl(int option, unsigned long arg2, unsigned long arg3,
 	// Both root manager and root processes should be allowed to get version
 	if (arg2 == CMD_GET_VERSION) {
 		u32 version = KERNEL_SU_VERSION;
-		if (copy_to_user(arg3, &version, sizeof(version))) {
+		if (copy_to_user(arg3_user, &version, sizeof(version))) {
 			pr_err("prctl reply error, cmd: %lu\n", arg2);
 		}
 #ifdef MODULE
@@ -271,7 +273,7 @@ int ksu_handle_prctl(int option, unsigned long arg2, unsigned long arg3,
 #else
 		u32 is_lkm = 0x0;
 #endif
-		if (arg4 && copy_to_user(arg4, &is_lkm, sizeof(is_lkm))) {
+		if (arg4 && copy_to_user(arg4_user, &is_lkm, sizeof(is_lkm))) {
 			pr_err("prctl reply error, cmd: %lu\n", arg2);
 		}
 		return 0;
@@ -314,7 +316,7 @@ int ksu_handle_prctl(int option, unsigned long arg2, unsigned long arg3,
 		if (!from_root) {
 			return 0;
 		}
-		if (!handle_sepolicy(arg3, arg4)) {
+		if (!handle_sepolicy(arg3, arg4_user)) {
 			if (copy_to_user(result, &reply_ok, sizeof(reply_ok))) {
 				pr_err("sepolicy: prctl reply error\n");
 			}
@@ -339,9 +341,9 @@ int ksu_handle_prctl(int option, unsigned long arg2, unsigned long arg3,
 		bool success = ksu_get_allow_list(array, &array_length,
 						  arg2 == CMD_GET_ALLOW_LIST);
 		if (success) {
-			if (!copy_to_user(arg4, &array_length,
+			if (!copy_to_user(arg4_user, &array_length,
 					  sizeof(array_length)) &&
-			    !copy_to_user(arg3, array,
+			    !copy_to_user(arg3_user, array,
 					  sizeof(u32) * array_length)) {
 				if (copy_to_user(result, &reply_ok,
 						 sizeof(reply_ok))) {
@@ -365,7 +367,7 @@ int ksu_handle_prctl(int option, unsigned long arg2, unsigned long arg3,
 		} else {
 			pr_err("unknown cmd: %lu\n", arg2);
 		}
-		if (!copy_to_user(arg4, &allow, sizeof(allow))) {
+		if (!copy_to_user(arg4_user, &allow, sizeof(allow))) {
 			if (copy_to_user(result, &reply_ok, sizeof(reply_ok))) {
 				pr_err("prctl reply error, cmd: %lu\n", arg2);
 			}
@@ -383,14 +385,14 @@ int ksu_handle_prctl(int option, unsigned long arg2, unsigned long arg3,
 	// we are already manager
 	if (arg2 == CMD_GET_APP_PROFILE) {
 		struct app_profile profile;
-		if (copy_from_user(&profile, arg3, sizeof(profile))) {
+		if (copy_from_user(&profile, arg3_user, sizeof(profile))) {
 			pr_err("copy profile failed\n");
 			return 0;
 		}
 
 		bool success = ksu_get_app_profile(&profile);
 		if (success) {
-			if (copy_to_user(arg3, &profile, sizeof(profile))) {
+			if (copy_to_user(arg3_user, &profile, sizeof(profile))) {
 				pr_err("copy profile failed\n");
 				return 0;
 			}
@@ -403,7 +405,7 @@ int ksu_handle_prctl(int option, unsigned long arg2, unsigned long arg3,
 
 	if (arg2 == CMD_SET_APP_PROFILE) {
 		struct app_profile profile;
-		if (copy_from_user(&profile, arg3, sizeof(profile))) {
+		if (copy_from_user(&profile, arg3_user, sizeof(profile))) {
 			pr_err("copy profile failed\n");
 			return 0;
 		}
@@ -551,6 +553,7 @@ int ksu_handle_setuid(struct cred *new, const struct cred *old)
 
 // Init functons
 
+#ifdef CONFIG_KPROBES
 static int handler_pre(struct kprobe *p, struct pt_regs *regs)
 {
 	struct pt_regs *real_regs = PT_REAL_REGS(regs);
@@ -617,6 +620,7 @@ __maybe_unused int ksu_kprobe_exit(void)
 	unregister_kprobe(&renameat_kp);
 	return 0;
 }
+#endif /* CONFIG_KPROBES */
 
 static int ksu_task_prctl(int option, unsigned long arg2, unsigned long arg3,
 			  unsigned long arg4, unsigned long arg5)

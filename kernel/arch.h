@@ -61,6 +61,18 @@
 #define SYS_EXECVE_SYMBOL "sys_execve"
 #endif
 
+#elif defined(__arm__)
+
+/*
+ * Native ARM32 support for the KY-42C port uses KernelSU's manual
+ * integration path.  Do not provide guessed pt_regs mappings here:
+ * ARM AAPCS arguments beyond r0-r3 are stack arguments, so treating
+ * r4/r5 as generic argument registers would be incorrect.
+ */
+#ifdef CONFIG_KPROBES
+#error "KernelSU ARM32 port requires manual hooks with CONFIG_KPROBES disabled"
+#endif
+
 #else
 #error "Unsupported arch"
 #endif
