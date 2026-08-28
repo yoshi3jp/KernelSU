@@ -40,12 +40,12 @@ extern void ksu_ksud_exit();
 int __init kernelsu_init(void)
 {
 	/*
-	 * KY-42C staged bring-up: K3.
+	 * KY-42C staged bring-up: K4.
 	 *
-	 * KernelSU is linked into the kernel, but no KernelSU subsystem is
-	 * initialized.  This isolates image/linkage effects from runtime
-	 * initialization effects.
+	 * Initialize only the KernelSU core LSM hooks.  Do not initialize
+	 * the workqueue, allowlist, throne tracker, ksud, or sucompat yet.
 	 */
+	ksu_core_init();
 	return 0;
 
 #ifdef CONFIG_KSU_DEBUG
