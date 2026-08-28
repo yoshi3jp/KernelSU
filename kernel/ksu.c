@@ -39,15 +39,6 @@ extern void ksu_ksud_exit();
 
 int __init kernelsu_init(void)
 {
-	/*
-	 * KY-42C staged bring-up: K4.
-	 *
-	 * Initialize only the KernelSU core LSM hooks.  Do not initialize
-	 * the workqueue, allowlist, throne tracker, ksud, or sucompat yet.
-	 */
-	ksu_core_init();
-	return 0;
-
 #ifdef CONFIG_KSU_DEBUG
 	pr_alert("*************************************************************");
 	pr_alert("**     NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE    **");
