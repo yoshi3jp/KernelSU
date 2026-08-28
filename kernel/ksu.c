@@ -39,6 +39,15 @@ extern void ksu_ksud_exit();
 
 int __init kernelsu_init(void)
 {
+	/*
+	 * KY-42C staged bring-up: K3.
+	 *
+	 * KernelSU is linked into the kernel, but no KernelSU subsystem is
+	 * initialized.  This isolates image/linkage effects from runtime
+	 * initialization effects.
+	 */
+	return 0;
+
 #ifdef CONFIG_KSU_DEBUG
 	pr_alert("*************************************************************");
 	pr_alert("**     NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE    **");
