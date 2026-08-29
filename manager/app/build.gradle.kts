@@ -22,6 +22,12 @@ apksign {
 android {
     namespace = "me.weishu.kernelsu"
 
+    defaultConfig {
+        ndk {
+            abiFilters += "armeabi-v7a"
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
