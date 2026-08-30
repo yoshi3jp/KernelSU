@@ -44,6 +44,9 @@ fn exec_install_script(module_file: &str) -> Result<()> {
     let result = Command::new(assets::BUSYBOX_PATH)
         .args(["sh", "-c", INSTALL_MODULE_SCRIPT])
         .env("ASH_STANDALONE", "1")
+        // Module installation is only reached after ensure_boot_completed().
+        // Do not rely on BusyBox ps/zygote detection on ARM32.
+        .env("BOOTMODE", "true")
         .env(
             "PATH",
             format!(

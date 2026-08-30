@@ -359,7 +359,6 @@ int ksu_handle_vfs_read(struct file **file_ptr, char __user **buf_ptr,
 		stop_vfs_read_hook();
 		return 0;
 	}
-	rc_inserted = true;
 
 	// now we can sure that the init process is reading
 	// `/system/etc/init/atrace.rc`
@@ -400,6 +399,8 @@ int ksu_handle_vfs_read(struct file **file_ptr, char __user **buf_ptr,
 
 	*buf_ptr = buf + rc_count;
 	*count_ptr = count - rc_count;
+
+	rc_inserted = true;
 
 	return 0;
 }
