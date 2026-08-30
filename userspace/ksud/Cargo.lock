@@ -686,7 +686,6 @@ dependencies = [
 [[package]]
 name = "hole-punch"
 version = "0.0.4-alpha.0"
-source = "git+https://github.com/tiann/hole-punch#11ab7a61bfb98682b72fd7f58a47d8e5d997328e"
 dependencies = [
  "cfg-if 0.1.10",
  "errno 0.2.8",
@@ -948,7 +947,6 @@ checksum = "90ed8c1e510134f979dbc4f070f87d4313098b704861a105fe34231c70a3901c"
 [[package]]
 name = "loopdev"
 version = "0.5.0"
-source = "git+https://github.com/Kernel-SU/loopdev#7a921f8d966477a645b1188732fac486c71a68ef"
 dependencies = [
  "errno 0.2.8",
  "libc",

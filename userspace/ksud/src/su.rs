@@ -20,16 +20,16 @@ use rustix::{
 #[cfg(any(target_os = "linux", target_os = "android"))]
 pub fn grant_root(global_mnt: bool) -> Result<()> {
     const KERNEL_SU_OPTION: u32 = 0xDEAD_BEEF;
-    const CMD_GRANT_ROOT: u64 = 0;
+    const CMD_GRANT_ROOT: libc::c_ulong = 0;
 
     let mut result: u32 = 0;
+
     unsafe {
-        #[allow(clippy::cast_possible_wrap)]
         libc::prctl(
-            KERNEL_SU_OPTION as i32, // supposed to overflow
+            KERNEL_SU_OPTION as libc::c_int,
             CMD_GRANT_ROOT,
-            0,
-            0,
+            0 as libc::c_ulong,
+            0 as libc::c_ulong,
             std::ptr::addr_of_mut!(result).cast::<libc::c_void>(),
         );
     }
@@ -216,10 +216,9 @@ pub fn root_shell() -> Result<()> {
     if free_idx < matches.free.len() {
         let name = &matches.free[free_idx];
         uid = unsafe {
-            #[cfg(target_arch = "aarch64")]
-            let pw = libc::getpwnam(name.as_ptr()).as_ref();
-            #[cfg(target_arch = "x86_64")]
-            let pw = libc::getpwnam(name.as_ptr() as *const i8).as_ref();
+            let pw = libc::getpwnam(
+            name.as_ptr().cast::<libc::c_char>()
+            ).as_ref();
 
             match pw {
                 Some(pw) => pw.pw_uid,
