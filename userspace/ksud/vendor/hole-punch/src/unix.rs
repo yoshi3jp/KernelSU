@@ -7,7 +7,29 @@ use std::io::Error;
 use std::os::unix::io::AsRawFd;
 
 use errno::errno;
-use libc::{c_int, lseek, off_t, EINVAL, ENXIO, SEEK_DATA, SEEK_END, SEEK_HOLE};
+#[cfg(target_os = "android")]
+use libc::{
+    c_int,
+    lseek64 as lseek,
+    off64_t as off_t,
+    EINVAL,
+    ENXIO,
+    SEEK_DATA,
+    SEEK_END,
+    SEEK_HOLE,
+};
+
+#[cfg(not(target_os = "android"))]
+use libc::{
+    c_int,
+    lseek,
+    off_t,
+    EINVAL,
+    ENXIO,
+    SEEK_DATA,
+    SEEK_END,
+    SEEK_HOLE,
+};
 
 #[derive(Debug, Clone, Copy)]
 enum Tag {
