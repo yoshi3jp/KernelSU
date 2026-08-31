@@ -91,15 +91,6 @@ void apply_kernelsu_rules()
 	ksu_allow(db, "init", "adb_data_file", "file", ALL);
 	ksu_allow(db, "init", "adb_data_file", "dir", ALL); // #1289
 	ksu_allow(db, "init", KERNEL_SU_DOMAIN, ALL, ALL);
-	/*
-	 * An init "exec u:r:su:s0 ... /data/adb/ksud" performs an
-	 * explicit transition into the su domain.  The resulting domain
-	 * therefore needs entrypoint permission on adb_data_file.
-	 *
-	 * This needs to be explicit on ARM32/4.9 rather than relying on
-	 * the broad KERNEL_SU_DOMAIN -> ALL rule above.
-	 */
-	ksu_allow(db, KERNEL_SU_DOMAIN, "adb_data_file", "file", "entrypoint");
 	// we need to umount modules in zygote
 	ksu_allow(db, "zygote", "adb_data_file", "dir", "search");
 
